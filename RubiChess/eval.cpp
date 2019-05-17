@@ -433,7 +433,8 @@ int chessposition::getPositionValue()
             U64 attack = 0ULL;
             if (shifting[p] & 0x2) // rook and queen
             {
-                attack = mRookAttacks[index][MAGICROOKINDEX(xrayrookoccupied[me], index)];
+                //attack = mRookAttacks[index][MAGICROOKINDEX(xrayrookoccupied[me], index)];
+                attack = MAGICROOKATTACKS(xrayrookoccupied[me], index);
 
                 // extrabonus for rook on (semi-)open file  
                 if (p == ROOK && (phentry->semiopen[me] & BITSET(FILE(index)))) {
@@ -443,7 +444,8 @@ int chessposition::getPositionValue()
             }
 
             if (shifting[p] & 0x1) // bishop and queen)
-                attack |= mBishopAttacks[index][MAGICBISHOPINDEX(xraybishopoccupied[me], index)];
+                //attack |= mBishopAttacks[index][MAGICBISHOPINDEX(xraybishopoccupied[me], index)];
+                attack |= MAGICBISHOPATTACKS(xraybishopoccupied[me], index);
 
             if (p == KNIGHT)
                 attack = knight_attacks[index];

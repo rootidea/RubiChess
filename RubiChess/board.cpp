@@ -1053,8 +1053,13 @@ void chessposition::sdebug(int indent, const char* format, ...)
 #endif
 
 // shameless copy from http://chessprogramming.wikispaces.com/Magic+Bitboards#Plain
+#if 0
 U64 mBishopAttacks[64][1 << BISHOPINDEXBITS];
 U64 mRookAttacks[64][1 << ROOKINDEXBITS];
+#else
+U64 mBshpAttacks[MAXBISHOPATTACKS];
+U64 mRookAttacks[MAXROOKATTACKS];
+#endif
 
 SMagic mBishopTbl[64];
 SMagic mRookTbl[64];
@@ -1153,6 +1158,10 @@ void initBitmaphelper()
     castleindex[60][62] = BKC;
     castlekingto[4][0] = BITSET(2) | BITSET(6);
     castlekingto[60][1] = BITSET(58) | BITSET(62);
+
+    int mBshpAttackIndex = 0;
+    int mRookAttackIndex = 0;
+    int magicnum = 0;
 
     for (int from = 0; from < 64; from++)
     {
@@ -1268,10 +1277,11 @@ void initBitmaphelper()
         }
 
         // Slider attacks
+        mBishopTbl[from].ptr = &mBshpAttacks[mBshpAttackIndex];
+        mRookTbl[from].ptr = &mRookAttacks[mRookAttackIndex];
         // Fill the mask
         mBishopTbl[from].mask = 0ULL;
         mRookTbl[from].mask = 0ULL;
-        int magicnum = 0;
         for (int j = 0; j < 64; j++)
         {
             if (from == j)
@@ -1284,63 +1294,34 @@ void initBitmaphelper()
                 mBishopTbl[from].mask |= BITSET(j);
         }
 
-        // Search for magic numbers and initialize the attack tables
-        while (true)
-        {
-            bool magicOk = true;
-            
-            // Clear attack bitmaps to detect hash collisions
-            for (int j = 0; j < (1 << BISHOPINDEXBITS); j++)
-                mBishopAttacks[from][j] = 0ULL;
-            
-            // Get a random number with few bits set as a possible magic number
-            // mBishopTbl[from].magic = getMagicCandidate(mBishopTbl[from].mask);
-            mBishopTbl[from].magic = magics[magicnum++];
+        int bshpBits = POPCOUNT(mBishopTbl[from].mask);
+        mBishopTbl[from].shift = 64 - bshpBits;
+        mBishopTbl[from].magic = magics[magicnum++];
+        mBshpAttackIndex += (1 << bshpBits);
 
-            for (int j = 0; magicOk && j < (1 << BISHOPINDEXBITS); j++) {
-                // First get the subset of mask corresponding to j
-                U64 occ = getOccupiedFromMBIndex(j, mBishopTbl[from].mask);
-                // Now get the attack bitmap for this subset and store to attack table
-                U64 attack = (getAttacks(from, occ, -7) | getAttacks(from, occ, 7) | getAttacks(from, occ, -9) | getAttacks(from, occ, 9));
-                int hashindex = MAGICBISHOPINDEX(occ, from);
-                // this test is obsolete now that the magics are precalculated
-                if (mBishopAttacks[from][hashindex] == 0ULL)
-                    mBishopAttacks[from][hashindex] = attack;
-                else if (mBishopAttacks[from][hashindex] != attack)
-                    magicOk = false;
-            }
-            if (magicOk)
-                break;
+        for (int j = 0; j < (1 << bshpBits); j++) {
+            // First get the subset of mask corresponding to j
+            U64 occ = getOccupiedFromMBIndex(j, mBishopTbl[from].mask);
+            // Now get the attack bitmap for this subset and store to attack table
+            U64 attack = (getAttacks(from, occ, -7) | getAttacks(from, occ, 7) | getAttacks(from, occ, -9) | getAttacks(from, occ, 9));
+            int hashindex = MAGICBISHOPINDEX(occ, from);
+            mBishopTbl[from].ptr[hashindex] = attack;
         }
 
-        while (true)
-        {
-            bool magicOk = true;
+        int rookBits = POPCOUNT(mRookTbl[from].mask);
+        mRookTbl[from].shift = 64 - rookBits;
+        mRookTbl[from].magic = magics[magicnum++];
+        mRookAttackIndex += (1 << rookBits);
 
-            // Clear attack bitmaps to detect hash collisions
-            for (int j = 0; j < (1 << ROOKINDEXBITS); j++)
-                mRookAttacks[from][j] = 0ULL;
-
-            // Get a random number with few bits set as a possible magic number
-            // mRookTbl[from].magic = getMagicCandidate(mRookTbl[from].mask);
-            mRookTbl[from].magic = magics[magicnum++];
-
-            for (int j = 0; magicOk && j < (1 << ROOKINDEXBITS); j++) {
-                // First get the subset of mask corresponding to j
-                U64 occ = getOccupiedFromMBIndex(j, mRookTbl[from].mask);
-                // Now get the attack bitmap for this subset and store to attack table
-                U64 attack = (getAttacks(from, occ, -1) | getAttacks(from, occ, 1) | getAttacks(from, occ, -8) | getAttacks(from, occ, 8));
-                int hashindex = MAGICROOKINDEX(occ, from);
-                // this test is obsolete now that the magics are precalculated
-                if (mRookAttacks[from][hashindex] == 0ULL)
-                    mRookAttacks[from][hashindex] = attack;
-                else if (mRookAttacks[from][hashindex] != attack)
-                    magicOk = false;
-            }
-            if (magicOk)
-                break;
+        for (int j = 0; j < (1 << rookBits); j++) {
+            // First get the subset of mask corresponding to j
+            U64 occ = getOccupiedFromMBIndex(j, mRookTbl[from].mask);
+            // Now get the attack bitmap for this subset and store to attack table
+            U64 attack = (getAttacks(from, occ, -1) | getAttacks(from, occ, 1) | getAttacks(from, occ, -8) | getAttacks(from, occ, 8));
+            int hashindex = MAGICROOKINDEX(occ, from);
+            mRookTbl[from].ptr[hashindex] = attack;
         }
-        fflush(stdout);
+            
         epthelper[from] = 0ULL;
         if (RANK(from) == 3 || RANK(from) == 4)
         {

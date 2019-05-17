@@ -891,22 +891,36 @@ extern U64 knight_attacks[64];
 extern U64 king_attacks[64];
 
 struct SMagic {
+    U64 *ptr;
     U64 mask;  // to mask relevant squares of both lines (no outer squares)
     U64 magic; // magic 64-bit factor
+    int shift;
 };
 
 extern SMagic mBishopTbl[64];
 extern SMagic mRookTbl[64];
 
+#if 0
 #define BISHOPINDEXBITS 9
 #define ROOKINDEXBITS 12
 #define MAGICBISHOPINDEX(m,x) (int)((((m) & mBishopTbl[x].mask) * mBishopTbl[x].magic) >> (64 - BISHOPINDEXBITS))
 #define MAGICROOKINDEX(m,x) (int)((((m) & mRookTbl[x].mask) * mRookTbl[x].magic) >> (64 - ROOKINDEXBITS))
 #define MAGICBISHOPATTACKS(m,x) (mBishopAttacks[x][MAGICBISHOPINDEX(m,x)])
 #define MAGICROOKATTACKS(m,x) (mRookAttacks[x][MAGICROOKINDEX(m,x)])
-
 extern U64 mBishopAttacks[64][1 << BISHOPINDEXBITS];
 extern U64 mRookAttacks[64][1 << ROOKINDEXBITS];
+#else
+#define MAGICBISHOPINDEX(m,x) (int)((((m) & mBishopTbl[x].mask) * mBishopTbl[x].magic) >> mBishopTbl[x].shift)
+#define MAGICROOKINDEX(m,x) (int)((((m) & mRookTbl[x].mask) * mRookTbl[x].magic) >> mRookTbl[x].shift)
+#define MAGICBISHOPATTACKS(m,x) (mBishopTbl[x].ptr[MAGICBISHOPINDEX(m,x)])
+#define MAGICROOKATTACKS(m,x) (mRookTbl[x].ptr[MAGICROOKINDEX(m,x)])
+
+#define MAXBISHOPATTACKS 0x1480
+extern U64 mBshpAttacks[MAXBISHOPATTACKS];
+#define MAXROOKATTACKS 0x19000
+extern U64 mRookAttacks[MAXROOKATTACKS];
+#endif
+
 
 enum MoveType { QUIET = 1, CAPTURE = 2, PROMOTE = 4, TACTICAL = 6, ALL = 7, EVASION = 8, QUIETWITHCHECK = 9 };
 enum RootsearchType { SinglePVSearch, MultiPVSearch };
