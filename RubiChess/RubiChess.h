@@ -916,9 +916,7 @@ extern U64 mRookAttacks[64][1 << ROOKINDEXBITS];
 #define MAGICROOKATTACKS(m,x) (mRookTbl[x].ptr[MAGICROOKINDEX(m,x)])
 
 #define MAXBISHOPATTACKS 0x1480
-extern U64 mBshpAttacks[MAXBISHOPATTACKS];
 #define MAXROOKATTACKS 0x19000
-extern U64 mRookAttacks[MAXROOKATTACKS];
 #endif
 
 
