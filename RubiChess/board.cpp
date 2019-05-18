@@ -1117,7 +1117,7 @@ U64 getOccupiedFromMBIndex(int j, U64 mask)
     return occ;
 }
 
-#if 0  // Code to generate magics below, don't remove
+#if 0  // Code to generate magics below, keep code for documentation
 U64 getMagicCandidate(U64 mask)
 {
     U64 magic;
@@ -1128,8 +1128,20 @@ U64 getMagicCandidate(U64 mask)
 }
 #endif
 
-// Use precalculated macigs for better to save time at startup
+// Use precalculated macigs for better faster startup
 const U64 bishopmagics[] = {
+#if 1
+    // my magics
+0x1004301021102080, 0x0010108088828201, 0x4810012210200300, 0x0408084100200140, 0x2041104000000200, 0x0003100815002500, 0x00840c0119480401, 0x2249004104200200,
+0x8001400421220200, 0x0840046408004100, 0x0020084085020040, 0x8020042402828801, 0x0214040420001400, 0xa800209004201091, 0x0a00004210042213, 0x0000c2005402480a,
+0x0104004044040410, 0xa010010911180281, 0x0008001c10c01200, 0x1008000420441080, 0x8006000400a20200, 0x8882012108014400, 0x0042020098014800, 0x0180424112480432,
+0x0002900440500200, 0x208104b010104220, 0x2081300088018024, 0x0104004044010003, 0x802d010020104000, 0x6008020141104202, 0x01080a0129010102, 0x0304084004220200,
+0x201824400e100208, 0x0308010461484820, 0x2000109000020400, 0x8908240400080120, 0x0004010010140040, 0x1090020023420080, 0x0001042400212112, 0x0402009200430061,
+0x2000820820404001, 0x0001044104002040, 0x0012012601000810, 0x8020102011000810, 0x040040810a008100, 0x0102208122020900, 0x410401a216008400, 0xc00800a404400080,
+0x0000680248200002, 0x6010b30c10040108, 0x9041004208040010, 0x0200220884041840, 0x8001611202020100, 0x4000112002442000, 0x1025104405040000, 0x10200202021be002,
+0x6400240208112821, 0x8282150082108280, 0x6001202840441021, 0x2010400100420200, 0x001a0000120a0600, 0x0004060a10100080, 0x0040400488008900, 0x0008501024822280
+#else
+    // Et magics
 0xffedf9fd7cfcffff, 0xfc0962854a77f576, 0x5822022042000000, 0x2ca804a100200020, 0x0204042200000900, 0x2002121024000002, 0xfc0a66c64a7ef576, 0x7ffdfdfcbd79ffff,
 0xfc0846a64a34fff6, 0xfc087a874a3cf7f6, 0x1001080204002100, 0x1810080489021800, 0x0062040420010a00, 0x5028043004300020, 0xfc0864ae59b4ff76, 0x3c0860af4b35ff76,
 0x73c01af56cf4cffb, 0x41a01cfad64aaffc, 0x040c0422080a0598, 0x4228020082004050, 0x0200800400e00100, 0x020b001230021040, 0x7c0c028f5b34ff76, 0xfc0a028e5ab4df76,
@@ -1138,9 +1150,22 @@ const U64 bishopmagics[] = {
 0xdcefd9b54bfcc09f, 0xf95ffa765afd602b, 0x1401210240484800, 0x0022244208010080, 0x1105040104000210, 0x2040088800c40081, 0x43ff9a5cf4ca0c01, 0x4bffcd8e7c587601,
 0xfc0ff2865334f576, 0xfc0bf6ce5924f576, 0x80000b0401040402, 0x0020004821880a00, 0x8200002022440100, 0x0009431801010068, 0xc3ffb7dc36ca8c89, 0xc3ff8a54f4ca2c89,
 0xfffffcfcfd79edff, 0xfc0863fccb147576, 0x040c000022013020, 0x2000104000420600, 0x0400000260142410, 0x0800633408100500, 0xfc087e8e4bb2f736, 0x43ff9e4ef4ca2c89
+#endif
 };
 
 const U64 rookmagics[] = {
+#if 1
+    // my magics
+0x8200108041020020, 0x018030c000802002, 0x0200088022004010, 0x0480080080c41000, 0x0600041008208200, 0x8900010008340006, 0x8880020000801100, 0x23000284a0420100,
+0x0402800480400020, 0x2000400040201000, 0x8180801000200080, 0x5012000820420010, 0x8004808008000400, 0x3080808004000200, 0x4409000411002200, 0x0001000062008100,
+0x0080004020004001, 0x2010004000402000, 0x1020808020001000, 0x0200818018011000, 0x1080808008000401, 0x0206008004008002, 0x0403010100040200, 0x6820020000884904,
+0x0038208180084000, 0xc400810100400024, 0x0008104900200100, 0x2080100080800800, 0x0020850100080190, 0x8004010040020040, 0xd101020400108841, 0x2800008200050c44,
+0x0108400820800080, 0x4840002081004100, 0x0a00108042002203, 0x2402801002800800, 0x1041000801000410, 0x0400040080800200, 0x0000011044004208, 0x1280a10042000084,
+0x0080400080208000, 0x0000a0005000c008, 0x0808460080220010, 0x000021001001000b, 0x0001000408010010, 0x3402000204008080, 0x0200010210040008, 0x0080008408460001,
+0x00c0244010800080, 0x4008884000201080, 0x02060045a0128200, 0x2088100080080080, 0x0000480100100500, 0x0009000208040100, 0x0080811008020400, 0x5000004104008200,
+0x1102208001041841, 0x820120824000d301, 0x0890084410200101, 0x0031000409201001, 0x0011001008000443, 0x0002008408011002, 0x0012320110083084, 0x0406008044211402
+#else
+    // Et magics
 0xa180022080400230, 0x0040100040022000, 0x0080088020001002, 0x0080080280841000, 0x4200042010460008, 0x04800a0003040080, 0x0400110082041008, 0x008000a041000880,
 0x10138001a080c010, 0x0000804008200480, 0x00010011012000c0, 0x0022004128102200, 0x000200081201200c, 0x202a001048460004, 0x0081000100420004, 0x4000800380004500,
 0x0000208002904001, 0x0090004040026008, 0x0208808010002001, 0x2002020020704940, 0x8048010008110005, 0x6820808004002200, 0x0a80040008023011, 0x00b1460000811044,
@@ -1149,6 +1174,8 @@ const U64 rookmagics[] = {
 0x2240088020c28000, 0x001001201040c004, 0x0a02008010420020, 0x0010003009010060, 0x0004008008008014, 0x0080020004008080, 0x0282020001008080, 0x50000181204a0004,
 0x48fffe99fecfaa00, 0x48fffe99fecfaa00, 0x497fffadff9c2e00, 0x613fffddffce9200, 0xffffffe9ffe7ce00, 0xfffffff5fff3e600, 0x0010301802830400, 0x510ffff5f63c96a0,
 0xebffffb9ff9fc526, 0x61fffeddfeedaeae, 0x53bfffedffdeb1a2, 0x127fffb9ffdfb5f6, 0x411fffddffdbf4d6, 0x0801000804000603, 0x0003ffef27eebe74, 0x7645fffecbfea79e
+
+#endif
 };
 
 void initBitmaphelper()
@@ -1297,39 +1324,54 @@ void initBitmaphelper()
 
         int bshpBits = POPCOUNT(mBishopTbl[from].mask);
         mBishopTbl[from].shift = 64 - bshpBits;
-        mBishopTbl[from].magic = bishopmagics[from];
         mBshpAttackIndex += (1 << bshpBits);
 
-        for (int j = 0; j < (1 << bshpBits); j++) {
-            // First get the subset of mask corresponding to j
-            U64 occ = getOccupiedFromMBIndex(j, mBishopTbl[from].mask);
-            // Now get the attack bitmap for this subset and store to attack table
-            U64 attack = (getAttacks(from, occ, -7) | getAttacks(from, occ, 7) | getAttacks(from, occ, -9) | getAttacks(from, occ, 9));
-            int hashindex = MAGICBISHOPINDEX(occ, from);
+        while (true) {
+            // Clear attack bitmaps to detect hash collisions; disabled for precalculated magics
+            for (int j = 0; false && j < (1 << bshpBits); j++)
+                mBishopTbl[from].ptr[j] = 0ULL;
 
-            if (mBishopTbl[from].ptr[hashindex] == 0ULL)
-                mBishopTbl[from].ptr[hashindex] = attack;
-            else if (mBishopTbl[from].ptr[hashindex] != attack)
-                printf("Alarm\n");
-            
+            bool magicOk = true;
+            mBishopTbl[from].magic = bishopmagics[from]; // getMagicCandidate(mBishopTbl[from].mask);
+            for (int j = 0; j < (1 << bshpBits); j++) {
+                // First get the subset of mask corresponding to j
+                U64 occ = getOccupiedFromMBIndex(j, mBishopTbl[from].mask);
+                // Now get the attack bitmap for this subset and store to attack table
+                U64 attack = (getAttacks(from, occ, -7) | getAttacks(from, occ, 7) | getAttacks(from, occ, -9) | getAttacks(from, occ, 9));
+                int hashindex = MAGICBISHOPINDEX(occ, from);
+
+                if (mBishopTbl[from].ptr[hashindex] == 0ULL)
+                    mBishopTbl[from].ptr[hashindex] = attack;
+                else if (mBishopTbl[from].ptr[hashindex] != attack)
+                    magicOk = false; // will never happen with precalculated magics
+            }
+            if (magicOk) break;
         }
 
         int rookBits = POPCOUNT(mRookTbl[from].mask);
         mRookTbl[from].shift = 64 - rookBits;
-        mRookTbl[from].magic = rookmagics[from];
         mRookAttackIndex += (1 << rookBits);
 
-        for (int j = 0; j < (1 << rookBits); j++) {
-            // First get the subset of mask corresponding to j
-            U64 occ = getOccupiedFromMBIndex(j, mRookTbl[from].mask);
-            // Now get the attack bitmap for this subset and store to attack table
-            U64 attack = (getAttacks(from, occ, -1) | getAttacks(from, occ, 1) | getAttacks(from, occ, -8) | getAttacks(from, occ, 8));
-            int hashindex = MAGICROOKINDEX(occ, from);
+        while (true) {
+            // Clear attack bitmaps to detect hash collisions; disabled for precalculated magics
+            for (int j = 0; false && j < (1 << rookBits); j++)
+                mRookTbl[from].ptr[j] = 0ULL;
 
-            if (mRookTbl[from].ptr[hashindex] == 0ULL)
-                mRookTbl[from].ptr[hashindex] = attack;
-            else if (mRookTbl[from].ptr[hashindex] != attack)
-                printf("Alarm\n");
+            bool magicOk = true;
+            mRookTbl[from].magic = rookmagics[from]; // getMagicCandidate(mRookTbl[from].mask);
+            for (int j = 0; magicOk && j < (1 << rookBits); j++) {
+                // First get the subset of mask corresponding to j
+                U64 occ = getOccupiedFromMBIndex(j, mRookTbl[from].mask);
+                // Now get the attack bitmap for this subset and store to attack table
+                U64 attack = (getAttacks(from, occ, -1) | getAttacks(from, occ, 1) | getAttacks(from, occ, -8) | getAttacks(from, occ, 8));
+                int hashindex = MAGICROOKINDEX(occ, from);
+
+                if (mRookTbl[from].ptr[hashindex] == 0ULL)
+                    mRookTbl[from].ptr[hashindex] = attack;
+                else if (mRookTbl[from].ptr[hashindex] != attack)
+                    magicOk = false; // will never happen with precalculated magics
+            }
+            if (magicOk) break;
         }
             
         epthelper[from] = 0ULL;
@@ -1341,6 +1383,14 @@ void initBitmaphelper()
                 epthelper[from] |= BITSET(from + 1);
         }
     }
+#if 0  // enable to output calculated magics
+    printf("\nBishop-Magics:\n");
+    for (int i = 0; i < 64; i++)
+        printf("0x%016llx,%s", mBishopTbl[i].magic, (i % 8 == 7 ? "\n" : " "));
+    printf("\nRook-Magics:\n");
+    for (int i = 0; i < 64; i++)
+        printf("0x%016llx,%s", mRookTbl[i].magic, (i % 8 == 7 ? "\n" : " "));
+#endif
 }
 
 
