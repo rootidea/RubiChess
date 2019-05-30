@@ -89,7 +89,6 @@ using namespace std;
 
 #else //_WIN32
 
-#include <cpuid.h>
 #define myassert(expression, pos, num, ...) (void)(0)
 #define sprintf_s sprintf
 void Sleep(long x);
