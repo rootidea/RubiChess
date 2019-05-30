@@ -190,7 +190,16 @@ static int GetSystemCores()
 
 string GetSystemName()
 {
-    return "Some non-x86 system";
+    ifstream ifs("/proc/cpuinfo");
+    if (!ifs.is_open())
+        return "Some non-x86 system";
+
+    string line;
+    while (ifs.good())
+    {
+        getline(ifs, line);
+        cout << line;
+    }
 }
 
 static int GetSystemCores()
