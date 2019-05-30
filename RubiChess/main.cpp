@@ -205,11 +205,11 @@ static void GetSystemInfosFromProc()
     while (ifs.good())
     {
         getline(ifs, line);
-        cout << line + "\n";
         smatch match;
-        if (regex_search(line, match, regex("Model\w+Name\w+:(.*)", regex::icase)))
+        if (regex_search(line, match, regex("Model\\s+Name\\s+:(.*)", regex::icase)))
         {
-            cout << match.str(0) << "xxx" << match.str(1);
+            numCores++;
+            SystemName = match.str(1);
         }
     }
 }
