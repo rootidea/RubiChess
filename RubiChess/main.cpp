@@ -188,23 +188,46 @@ static int GetSystemCores()
 
 #else
 
-string GetSystemName()
+string SystemName = "";
+int numCores = 0;
+
+static void GetSystemInfosFromProc()
 {
     ifstream ifs("/proc/cpuinfo");
     if (!ifs.is_open())
-        return "Some non-x86 system";
+    {
+        SystemName = "Some unknown non-x86 system";
+        numCores = 1;
+        return;
+    }
 
     string line;
     while (ifs.good())
     {
         getline(ifs, line);
-        cout << line;
+        cout << line + "\n";
+        smatch match;
+        if (regex_search(line, match, regex("Model\w+Name\w+:(.*)", regex::icase)))
+        {
+            cout << match.str(0) << "xxx" << match.str(1);
+        }
     }
+}
+
+static string GetSystemName()
+{
+    if (SystemName == "")
+        GetSystemInfosFromProc();
+
+    return SystemName;
 }
 
 static int GetSystemCores()
 {
-    return 1;
+    if (numCores == 0)
+        GetSystemInfosFromProc();
+
+    return numCores;
 }
 #endif
 
