@@ -18,6 +18,7 @@
 
 #include "RubiChess.h"
 
+#if defined(__x86_64__)  || defined(_M_X64)
 // Following code copied from https://gist.github.com/9prady9/a5e1e8bdbc9dc58b3349
 
 #define MAX_INTEL_TOP_LVL 4
@@ -172,80 +173,30 @@ CPUInfo::CPUInfo()
     }
 }
 
-#ifdef AAAA//_WIN32
+CPUInfo cinfo;
 
-string GetSystemInfo()
+static string GetSystemName()
 {
-    // shameless copy from MSDN example explaining __cpuid
-    char CPUString[0x20];
-    char CPUBrandString[0x40];
-    int CPUInfo[4] = { -1 };
-    //int nCacheLineSize = 0; // Maybe usefull for TT sizing
-
-    unsigned    nIds, nExIds, i;
-    //bool    bPOPCNT = false;
-    //bool    bBMI2 = false;
+	return cinfo.model();
+}
 
 
-    __cpuid(CPUInfo, 0);
-    nIds = CPUInfo[0];
-    memset(CPUString, 0, sizeof(CPUString));
-    *((int*)CPUString) = CPUInfo[1];
-    *((int*)(CPUString + 4)) = CPUInfo[3];
-    *((int*)(CPUString + 8)) = CPUInfo[2];
-
-    // Get the information associated with each valid Id
-    for (i = 0; i <= nIds; ++i)
-    {
-        __cpuid(CPUInfo, i);
-        // Interpret CPU feature information.
-        if (i == 1)
-        {
-            //bPOPCNT = (CPUInfo[2] & 0x800000) || false;
-        }
-
-        if (i == 7)
-        {
-            // this is not in the MSVC2012 example but may be useful later
-            //bBMI2 = (CPUInfo[1] & 0x100) || false;
-        }
-    }
-
-
-    // Calling __cpuid with 0x80000000 as the InfoType argument
-    // gets the number of valid extended IDs.
-    __cpuid(CPUInfo, 0x80000000);
-    nExIds = CPUInfo[0];
-    memset(CPUBrandString, 0, sizeof(CPUBrandString));
-
-    // Get the information associated with each extended ID.
-    for (i = 0x80000000; i <= nExIds; ++i)
-    {
-        __cpuid(CPUInfo, i);
-
-        // Interpret CPU brand string and cache information.
-        if (i == 0x80000002)
-            memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-        else if (i == 0x80000003)
-            memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-        else if (i == 0x80000004)
-            memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
-    }
-
-    return CPUBrandString;
+static int GetSystemCores()
+{
+    return cinfo.cores();
 }
 
 #else
 
-string GetSystemInfo()
+string GetSystemName()
 {
-
-	CPUInfo cinfo;
-
-	string CPUBrandString = " (" + to_string(cinfo.cores()) + " Kerne) " + cinfo.model();
-	return CPUBrandString;
+    return "Some non-x86 system";
 }
 
+static int GetSystemCores()
+{
+    return 1;
+}
 #endif
 
 
@@ -370,7 +321,7 @@ void perftest(bool dotests, int maxdepth)
 
     int i = 0;
     printf("\n\nPerft results for %s (Build %s)\n", en.name, BUILD);
-    printf("System: %s\n", GetSystemInfo().c_str());
+    printf("System: %s      Cores: %d\n", GetSystemName().c_str(), GetSystemCores());
     printf("Depth = %d      Hash-/Mirror-Tests %s\n", maxdepth, (dotests ? "enabled" : "disabled"));
     printf("========================================================================\n");
 
@@ -556,7 +507,7 @@ void doBenchmark()
     long long totaltime = 0;
     long long totalnodes = 0;
     fprintf(stderr, "\n\nBenchmark results for %s (Build %s):\n", en.name, BUILD);
-    fprintf(stderr, "System: %s\n", GetSystemInfo().c_str());
+    fprintf(stderr, "System: %s      Cores: %d\n", GetSystemName().c_str(), GetSystemCores());
     fprintf(stderr, "===============================================================================================================\n");
     while (benchmark[i].fen != "")
     {
