@@ -98,8 +98,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\RubiChess\board.cpp" />
+    <ClCompile Include="..\RubiChess\engine.cpp" />
     <ClCompile Include="..\RubiChess\eval.cpp" />
     <ClCompile Include="..\RubiChess\main.cpp" />
+    <ClCompile Include="..\RubiChess\move.cpp" />
     <ClCompile Include="..\RubiChess\search.cpp" />
     <ClCompile Include="..\RubiChess\tbprobe.cpp" />
     <ClCompile Include="..\RubiChess\transposition.cpp" />

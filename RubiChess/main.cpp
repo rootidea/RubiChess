@@ -910,3 +910,8 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
+// Some global objects
+evalparamset eps;
+zobrist zb;
+engine en;

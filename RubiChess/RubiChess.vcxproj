@@ -130,8 +130,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="board.cpp" />
+    <ClCompile Include="engine.cpp" />
     <ClCompile Include="eval.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="move.cpp" />
     <ClCompile Include="search.cpp" />
     <ClCompile Include="tbprobe.cpp" />
     <ClCompile Include="transposition.cpp" />

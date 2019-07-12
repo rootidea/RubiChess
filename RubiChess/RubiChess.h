@@ -803,8 +803,10 @@ extern U64 rankMask[64];
 // 00000000
 // 00000000
 extern U64 betweenMask[64][64];
-
+extern U64 epthelper[64];
 extern int squareDistance[64][64];
+extern int castleindex[64][64];
+extern int castlerights[64];
 
 struct chessmovestack
 {
@@ -1135,6 +1137,8 @@ public:
 };
 
 PieceType GetPieceType(char c);
+char PieceChar(PieceCode c, bool lower = false);
+void initBitmaphelper();
 
 struct enginestate
 {
