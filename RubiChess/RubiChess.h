@@ -1037,7 +1037,7 @@ public:
     template <AttackType At> U64 isAttackedBy(int index, int col);    // returns the bitboard of cols pieces attacking the index square; At controls if pawns are moved to block or capture
     bool see(uint32_t move, int threshold);
     int getBestPossibleCapture();
-    int getMoves(chessmove *m, MoveType t = ALL);
+    int getMoves(chessmove *m);
     void getRootMoves();
     void tbFilterRootMoves();
     void prepareStack();

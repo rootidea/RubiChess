@@ -132,10 +132,7 @@ long long engine::perft(int depth, bool dotests)
         }
     }
     chessmovelist movelist;
-    if (rootpos->isCheckbb)
-        movelist.length = rootpos->getMoves(&movelist.move[0], EVASION);
-    else
-        movelist.length = rootpos->getMoves(&movelist.move[0]);
+    movelist.length = rootpos->getMoves(&movelist.move[0]);
 
     rootpos->prepareStack();
 

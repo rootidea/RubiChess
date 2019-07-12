@@ -706,7 +706,7 @@ U64 getMagicCandidate(U64 mask)
 }
 #endif
 
-// Use precalculated macigs for better to save time at startup
+// Use precalculated macigs to save time at startup
 const U64 bishopmagics[] = {
     0x1002004102008200, 0x1002004102008200, 0x4310002248214800, 0x402010c110014208, 0xa000a06240114001, 0xa000a06240114001, 0x402010c110014208, 0xa000a06240114001,
     0x1002004102008200, 0x1002004102008200, 0x1002004102008200, 0x1002004102008200, 0x100c009840001000, 0x4310002248214800, 0xa000a06240114001, 0x4310002248214800,
@@ -728,6 +728,7 @@ const U64 rookmagics[] = {
     0x4520920010210200, 0x0400110410804810, 0x8105100028001048, 0x8105100028001048, 0x0802801009083002, 0x8200108041020020, 0x8200108041020020, 0x4000a12400848110,
     0x2000804026001102, 0x2000804026001102, 0x800040a010040901, 0x80001802002c0422, 0x0010b018200c0122, 0x200204802a080401, 0x8880604201100844, 0x80000cc281092402
 };
+
 
 void initBitmaphelper()
 {
@@ -1229,27 +1230,9 @@ template <MoveType Mt> int CreateMovelist(chessposition *pos, chessmove* mstart)
 }
 
 
-int chessposition::getMoves(chessmove *m, MoveType t)
+int chessposition::getMoves(chessmove *m)
 {
-    switch (t)
-    {
-        case QUIET:
-            return CreateMovelist<QUIET>(this, m);
-        case CAPTURE:
-            return CreateMovelist<CAPTURE>(this, m);
-            break;
-        case TACTICAL:
-            return CreateMovelist<TACTICAL>(this, m);
-            break;
-        case QUIETWITHCHECK:
-            return CreateMovelist<QUIETWITHCHECK>(this, m);
-            break;
-        case EVASION:
-            return CreateMovelist<EVASION>(this, m);
-            break;
-        default:
-            return CreateMovelist<ALL>(this, m);
-    }
+    return CreateMovelist<ALL>(this, m);
 }
 
 
