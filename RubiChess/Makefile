@@ -1,18 +1,18 @@
 CXX=g++
-CXXFLAGS=-g -std=c++11 -Wall -O3 $(EXTRACXXFLAGS)
+CXXFLAGS=-g -std=c++11 -Wall -O3 -flto $(EXTRACXXFLAGS)
 ifeq ($(shell uname -m),x86_64)
     ARCHFLAGS=-msse3 -mpopcnt
 endif
 ifeq ($(shell uname -m),armv7l)
     ARCHFLAGS=-march=armv7-a
 endif
-LDFLAGS=-pthread  $(EXTRALDFLAGS)
+LDFLAGS=$(EXTRALDFLAGS)
 
 profile_make = gcc-profile-make
 profile_use = gcc-profile-use
 
 
-ifeq ($(OS),Windows_NT)
+ifeq ($(OS),Windows_NTxx)
     LDFLAGS += -static
 endif
 DEPS = RubiChess.h
@@ -20,6 +20,8 @@ EXE1 = RubiChess
 EXE2 = RubiChess-oldcpu
 PGOBENCH1 = ./$(EXE1) -bench
 PGOBENCH2 = ./$(EXE2) -bench
+PROFDIR1 = OPT
+PROFDIR2 = NOPOCNT
 
 .PHONY: clean profile-build gcc-profile-make gcc-profile-use all
 
@@ -35,21 +37,18 @@ objclean:
 	$(RM) RubiChess RubiChess-oldcpu *.o
 
 profileclean:
-	$(RM) -f *.gcda
+	$(RM) -rf $(PROFDIR1)
+	$(RM) -rf $(PROFDIR2)
 
 clean: objclean profileclean
 
 gcc-profile-make:
-	$(MAKE) \
-	EXTRACXXFLAGS='-fprofile-generate' \
-	EXTRALDFLAGS='-lgcov' \
-	all
+	$(MAKE) EXTRACXXFLAGS='-fprofile-generate=$(PROFDIR1)' EXTRALDFLAGS='-lgcov' RubiChess
+	$(MAKE) EXTRACXXFLAGS='-fprofile-generate=$(PROFDIR2)' EXTRALDFLAGS='-lgcov' RubiChess-oldcpu
 
 gcc-profile-use:
-	$(MAKE) \
-	EXTRACXXFLAGS='-fprofile-use -fno-peel-loops -fno-tracer' \
-	EXTRALDFLAGS='-lgcov' \
-	all
+	$(MAKE) EXTRACXXFLAGS='-fprofile-use=$(PROFDIR1) -fno-peel-loops -fno-tracer' EXTRALDFLAGS='-lgcov' RubiChess
+	$(MAKE) EXTRACXXFLAGS='-fprofile-use=$(PROFDIR2) -fno-peel-loops -fno-tracer' EXTRALDFLAGS='-lgcov' RubiChess-oldcpu
 
 profile-build: clean
 	@echo "Building instrumented executable ..."
