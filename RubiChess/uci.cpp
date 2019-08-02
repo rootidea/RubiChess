@@ -34,7 +34,13 @@ GuiToken uci::parse(vector<string>* args, string ss)
     bool firsttoken = false;
 
     if (ss == "")
-        getline(cin, ss);
+    {
+        //getline(cin, ss);
+        char c[256];
+        fgets(c, 256, stdin);
+        c[strlen(c) - 1] = 0;
+        ss = c;
+    }
 
     GuiToken result = UNKNOWN;
     istringstream iss(ss);

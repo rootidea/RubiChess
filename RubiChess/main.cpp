@@ -824,6 +824,7 @@ int main(int argc, char* argv[])
     searchinit();
 
     cout.setf(ios_base::unitbuf);
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     printf("%s (Build %s)\n UCI compatible chess engine by %s\nParameterlist:\n", en.name, BUILD, en.author);
 

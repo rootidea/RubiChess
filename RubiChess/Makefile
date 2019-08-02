@@ -12,7 +12,7 @@ profile_make = gcc-profile-make
 profile_use = gcc-profile-use
 
 
-ifeq ($(OS),Windows_NTxx)
+ifeq ($(OS),Windows_NT)
     LDFLAGS += -static
 endif
 DEPS = RubiChess.h
