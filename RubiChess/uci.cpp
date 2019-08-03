@@ -36,10 +36,19 @@ GuiToken uci::parse(vector<string>* args, string ss)
     if (ss == "")
     {
         //getline(cin, ss);
-        char c[256];
-        fgets(c, 256, stdin);
-        c[strlen(c) - 1] = 0;
-        ss = c;
+        // ugly hack because getline somehow makes the flto optimized windows build crash
+        const int bufsize = 4096;
+        char c[bufsize];
+        bool bEol = false;
+        while (!bEol && fgets(c, bufsize, stdin))
+        {
+            int l = strlen(c);
+            bEol = (c[l - 1] == '\n');
+            if (bEol)
+                c[l - 1] = 0;
+            ss += c;
+            cout << ss + "\n";
+        }
     }
 
     GuiToken result = UNKNOWN;
