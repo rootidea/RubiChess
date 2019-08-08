@@ -42,12 +42,11 @@ GuiToken uci::parse(vector<string>* args, string ss)
         bool bEol = false;
         while (!bEol && fgets(c, bufsize, stdin))
         {
-            int l = strlen(c);
+            size_t l = strlen(c);
             bEol = (c[l - 1] == '\n');
             if (bEol)
                 c[l - 1] = 0;
             ss += c;
-            cout << ss + "\n";
         }
     }
 
