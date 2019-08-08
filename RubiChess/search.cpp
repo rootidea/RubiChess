@@ -250,6 +250,11 @@ int chessposition::alphabeta(int alpha, int beta, int depth)
         return SCOREDRAW;
     }
 
+    if (en.stopLevel == ENGINESTOPIMMEDIATELY)
+    {
+        // time is over; immediate stop requested
+        return alpha;
+    }
 
     // Reached depth? Do a qsearch
     if (depth <= 0)
@@ -567,12 +572,6 @@ int chessposition::alphabeta(int alpha, int beta, int depth)
                 }
             }
             unplayMove(m);
-
-            if (en.stopLevel == ENGINESTOPIMMEDIATELY)
-            {
-                // time is over; immediate stop requested
-                return alpha;
-            }
 
             SDEBUGPRINT(isDebugPv && isDebugMove, debugInsert, " PV move %s scored %d", debugMove.toString().c_str(), score);
 
@@ -912,7 +911,7 @@ int chessposition::rootsearch(int alpha, int beta, int depth)
         }
     }
 
-    SDEBUGPRINT(true, 0, getPv().c_str());
+    SDEBUGPRINT(true, 0, getPv(pvtable[0]).c_str());
 
     if (isMultiPV)
     {
@@ -938,7 +937,7 @@ static void uciScore(searchthread *thr, int inWindow, U64 nowtime, int mpvIndex)
     char s[4096];
     chessposition *pos = &thr->pos;
     en.lastReport = msRun;
-    string pvstring = pos->getPv(mpvIndex);
+    string pvstring = pos->getPv(mpvIndex ? pos->pvtable[mpvIndex] : pos->lastpv);
     int score = pos->bestmovescore[mpvIndex];
     U64 nodes = en.getTotalNodes();
 
@@ -972,6 +971,10 @@ static void search_gen1(searchthread *thr)
     int inWindow;
     bool reportedThisDepth;
 
+#ifdef TDEBUG
+    en.bStopCount = false;
+#endif
+
     const bool isMultiPV = (RT == MultiPVSearch);
     chessposition *pos = &thr->pos;
 
@@ -992,14 +995,12 @@ static void search_gen1(searchthread *thr)
     alpha = SHRT_MIN + 1;
     beta = SHRT_MAX;
 
-    // increment generation counter for tt aging
-    tp.nextSearch();
-
     uint32_t lastBestMove = 0;
     int constantRootMoves = 0;
     bool bExitIteration;
     en.lastReport = 0;
     U64 nowtime;
+    pos->lastpv[0] = 0;
     do
     {
         inWindow = 1;
@@ -1023,6 +1024,13 @@ static void search_gen1(searchthread *thr)
         else
         {
             score = pos->rootsearch<RT>(alpha, beta, thr->depth);
+#ifdef TDEBUG
+            if (en.stopLevel == ENGINESTOPIMMEDIATELY && thr->index == 0)
+            {
+                en.t2stop++;
+                en.bStopCount = true;
+            }
+#endif
 
             // new aspiration window
             if (score == alpha)
@@ -1066,6 +1074,19 @@ static void search_gen1(searchthread *thr)
                 }
             }
         }
+
+        // copy new pv to lastpv
+        if (pos->pvtable[0][0])
+        {
+            int i = 0;
+            while (pos->pvtable[0][i])
+            {
+                pos->lastpv[i] = pos->pvtable[0][i];
+                i++;
+            }
+            pos->lastpv[i] = 0;
+        }
+
         if (score > NOSCORE && thr->index == 0)
         {
             nowtime = getTime();
@@ -1119,12 +1140,22 @@ static void search_gen1(searchthread *thr)
             if (en.isPondering() && thr->depth > maxdepth) thr->depth--;  // stay on maxdepth when pondering
             reportedThisDepth = true;
             constantRootMoves++;
-            if (lastBestMove != pos->bestmove.code)
-            {
-                lastBestMove = pos->bestmove.code;
-                constantRootMoves = 0;
-            }
-            resetEndTime(constantRootMoves);
+        }
+
+        if (lastBestMove != pos->bestmove.code)
+        {
+            // New best move is found; reset thinking time
+            lastBestMove = pos->bestmove.code;
+            constantRootMoves = 0;
+        }
+
+        // Reset remaining time if depth is finished or new best move is found
+        if (thr->index == 0)
+        {
+            if (inWindow == 1 || !constantRootMoves)
+                resetEndTime(constantRootMoves);
+            if (!constantRootMoves && en.stopLevel == ENGINESTOPSOON)
+                en.stopLevel = ENGINERUN;
         }
 
         // early exit in playing mode as there is exactly one possible move
@@ -1146,6 +1177,11 @@ static void search_gen1(searchthread *thr)
     
     if (thr->index == 0)
     {
+#ifdef TDEBUG
+        if (!en.bStopCount)
+            en.t1stop++;
+        printf("info string stop info full iteration / immediate:  %4d /%4d\n", en.t1stop, en.t2stop);
+#endif
         // Output of best move
         searchthread *bestthr = thr;
         int bestscore = bestthr->pos.bestmovescore[0];
@@ -1160,13 +1196,21 @@ static void search_gen1(searchthread *thr)
                 bestthr = hthr;
             }
         }
-        if (bestthr->index)
+        if (pos->bestmove.code != bestthr->pos.bestmove.code)
         {
             // copy best moves and score from best thread to thread 0
+            int i = 0;
+            while (bestthr->pos.lastpv[i])
+            {
+                pos->lastpv[i] = bestthr->pos.lastpv[i];
+                i++;
+            }
+            pos->lastpv[i] = 0;
             pos->bestmove = bestthr->pos.bestmove;
             pos->pondermove = bestthr->pos.pondermove;
             pos->bestmovescore[0] = bestthr->pos.bestmovescore[0];
             inWindow = 1;
+            //printf("info string different bestmove from helper  lastpv:%x\n", bestthr->pos.lastpv[0]);
         }
 
         // remember score for next search in case of an instamove
@@ -1222,10 +1266,10 @@ void resetEndTime(int constantRootMoves, bool complete)
     if (en.movestogo)
     {
         // should garantee timetouse > 0
-        // stop soon at 0.5...1.5 x average movetime
-        // stop immediately at 1.3...2.3 x average movetime
-        int f1 = max(5, 15 - constantRootMoves * 2);
-        int f2 = max(13, 23 - constantRootMoves * 2);
+        // stop soon at 0.9...1.9 x average movetime
+        // stop immediately at 1.5...2.5 x average movetime
+        int f1 = max(9, 19 - constantRootMoves * 2);
+        int f2 = max(15, 25 - constantRootMoves * 2);
         if (complete)
             en.endtime1 = en.starttime + timetouse * en.frequency * f1 / (en.movestogo + 1) / 10000;
         en.endtime2 = en.starttime + min(max(0, timetouse - overhead * en.movestogo), f2 * timetouse / (en.movestogo + 1) / 10) * en.frequency / 1000;
@@ -1236,20 +1280,20 @@ void resetEndTime(int constantRootMoves, bool complete)
         if (timeinc)
         {
             // sudden death with increment; split the remaining time in (256-phase) timeslots
-            // stop soon after 6..10 timeslot
-            // stop immediately after 10..18 timeslots
-            int f1 = max(6, 10 - constantRootMoves);
-            int f2 = max(10, 18 - constantRootMoves);
+            // stop soon after 5..15 timeslot
+            // stop immediately after 15..25 timeslots
+            int f1 = max(5, 15 - constantRootMoves * 2);
+            int f2 = max(15, 25 - constantRootMoves * 2);
             if (complete)
                 en.endtime1 = en.starttime + max(timeinc, f1 * (timetouse + timeinc) / (256 - ph)) * en.frequency / 1000;
             en.endtime2 = en.starttime + min(max(0, timetouse - overhead), max(timeinc, f2 * (timetouse + timeinc) / (256 - ph))) * en.frequency / 1000;
         }
         else {
             // sudden death without increment; play for another x;y moves
-            // stop soon at 1/35...1/45 time slot
-            // stop immediately at 1/20...1/30 time slot
-            int f1 = min(45, 35 + constantRootMoves * 2);
-            int f2 = min(30, 20 + constantRootMoves * 2);
+            // stop soon at 1/32...1/42 time slot
+            // stop immediately at 1/12...1/22 time slot
+            int f1 = min(42, 32 + constantRootMoves * 2);
+            int f2 = min(22, 12 + constantRootMoves * 2);
             if (complete)
                 en.endtime1 = en.starttime + timetouse / f1 * en.frequency / 1000;
             en.endtime2 = en.starttime + min(max(0, timetouse - overhead), timetouse / f2) * en.frequency / 1000;
@@ -1258,13 +1302,17 @@ void resetEndTime(int constantRootMoves, bool complete)
     else {
         en.endtime1 = en.endtime2 = 0;
     }
+
+#ifdef TDEBUG
+    printf("info string Time for this move: %4.2f  /  %4.2f\n", (en.endtime1 - en.starttime) / (double)en.frequency, (en.endtime2 - en.starttime) / (double)en.frequency);
+#endif
 }
 
 
 void startSearchTime(bool complete = true)
 {
     en.starttime = getTime();
-    resetEndTime(complete, 0);
+    resetEndTime(0, complete);
 }
 
 
@@ -1275,6 +1323,9 @@ void searchguide()
     en.moveoutput = false;
     en.tbhits = 0;
     en.fh = en.fhf = 0;
+
+    // increment generation counter for tt aging
+    tp.nextSearch();
 
     for (int tnum = 0; tnum < en.Threads; tnum++)
     {
@@ -1311,7 +1362,7 @@ void searchguide()
             {
                 en.stopLevel = ENGINESTOPIMMEDIATELY;
             }
-            else if (en.endtime1 && nowtime >= en.endtime2 && en.stopLevel < ENGINESTOPSOON)
+            else if (en.endtime1 && nowtime >= en.endtime1 && en.stopLevel < ENGINESTOPSOON)
             {
                 en.stopLevel = ENGINESTOPSOON;
                 Sleep(10);
