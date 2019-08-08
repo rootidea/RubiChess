@@ -6,7 +6,7 @@ endif
 ifeq ($(shell uname -m),armv7l)
     ARCHFLAGS=-march=armv7-a
 endif
-LDFLAGS=$(EXTRALDFLAGS)
+LDFLAGS=-pthread $(EXTRALDFLAGS)
 
 profile_make = gcc-profile-make
 profile_use = gcc-profile-use
