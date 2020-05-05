@@ -574,13 +574,15 @@ int chessposition::alphabeta(int alpha, int beta, int depth)
         int stats = getHistory(m->code, ms.cmptr);
         int extendMove = 0;
 
-        // Singular extension
-        if ((m->code & 0xffff) == hashmovecode
+        if (ISCASTLE(m->code))
+            extendMove = 1;
+        else if ((m->code & 0xffff) == hashmovecode
             && depth > 7
             && !excludeMove
             && tp.probeHash(newhash, &hashscore, &staticeval, &hashmovecode, depth - 3, alpha, beta, ply)  // FIXME: maybe needs hashscore = FIXMATESCOREPROBE(hashscore, ply);
             && hashscore > alpha)
         {
+            // Singular extension
             excludemovestack[mstop - 1] = hashmovecode;
             int sBeta = max(hashscore - 2 * depth, SCOREBLACKWINS);
             int redScore = alphabeta(sBeta - 1, sBeta, depth / 2);
