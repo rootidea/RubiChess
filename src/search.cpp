@@ -202,6 +202,9 @@ int chessposition::getQuiescence(int alpha, int beta, int depth)
             continue;
         }
 
+        if (depth < -2 && GETTO(m->code) != GETTO(movestack[mstop - 1].movecode))
+            continue;
+
         if (!playMove(m))
             continue;
 
@@ -440,7 +443,7 @@ int chessposition::alphabeta(int alpha, int beta, int depth)
         playNullMove();
         int R = 4 + (depth / 6) + (bestknownscore - beta) / 150 + !PVNode * 2;
 
-        score = -alphabeta(-beta, -beta + 1, depth - R);
+        score = -alphabeta(-beta, -beta + 1, max(0, depth - R));
         unplayNullMove();
 
         if (score >= beta)
