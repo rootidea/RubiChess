@@ -36,7 +36,7 @@
 #define EVALTUNE
 #endif
 
-#if 1
+#if 0
 #define FINDMEMORYLEAKS
 #endif
 
