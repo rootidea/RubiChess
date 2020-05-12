@@ -36,7 +36,7 @@
 #define EVALTUNE
 #endif
 
-#if 0
+#if 1
 #define FINDMEMORYLEAKS
 #endif
 
@@ -993,18 +993,18 @@ struct SMagic {
     U64 magic; // magic 64-bit factor
 };
 
-extern SMagic mBishopTbl[64];
-extern SMagic mRookTbl[64];
+extern SMagic *mBishopTbl;
+extern SMagic *mRookTbl;
+extern U64 *mBishopAttacks;
+extern U64 *mRookAttacks;
 
 #define BISHOPINDEXBITS 9
 #define ROOKINDEXBITS 12
 #define MAGICBISHOPINDEX(m,x) (int)((((m) & mBishopTbl[x].mask) * mBishopTbl[x].magic) >> (64 - BISHOPINDEXBITS))
 #define MAGICROOKINDEX(m,x) (int)((((m) & mRookTbl[x].mask) * mRookTbl[x].magic) >> (64 - ROOKINDEXBITS))
-#define MAGICBISHOPATTACKS(m,x) (mBishopAttacks[x][MAGICBISHOPINDEX(m,x)])
-#define MAGICROOKATTACKS(m,x) (mRookAttacks[x][MAGICROOKINDEX(m,x)])
+#define MAGICBISHOPATTACKS(m,x) (mBishopAttacks[((x) << BISHOPINDEXBITS) | MAGICBISHOPINDEX(m,x)])
+#define MAGICROOKATTACKS(m,x) (mRookAttacks[((x) << ROOKINDEXBITS) | MAGICROOKINDEX(m,x)])
 
-extern U64 mBishopAttacks[64][1 << BISHOPINDEXBITS];
-extern U64 mRookAttacks[64][1 << ROOKINDEXBITS];
 
 enum MoveType { QUIET = 1, CAPTURE = 2, PROMOTE = 4, TACTICAL = 6, ALL = 7 };
 enum RootsearchType { SinglePVSearch, MultiPVSearch, PonderSearch };

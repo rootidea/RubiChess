@@ -912,8 +912,8 @@ void chessposition::updatePins()
         int k = kingpos[me];
         kingPinned[me] = 0ULL;
         U64 occ = occupied00[you];
-        U64 attackers = mRookAttacks[k][MAGICROOKINDEX(occ, k)] & (piece00[WROOK | you] | piece00[WQUEEN | you]);
-        attackers |= mBishopAttacks[k][MAGICBISHOPINDEX(occ, k)] & (piece00[WBISHOP | you] | piece00[WQUEEN | you]);
+        U64 attackers = MAGICROOKATTACKS(occ, k) & (piece00[WROOK | you] | piece00[WQUEEN | you]);
+        attackers |= MAGICBISHOPATTACKS(occ, k) & (piece00[WBISHOP | you] | piece00[WQUEEN | you]);
         
         while (attackers)
         {
@@ -1183,11 +1183,15 @@ void chessposition::pvdebugout()
 #endif
 
 // shameless copy from http://chessprogramming.wikispaces.com/Magic+Bitboards#Plain
-U64 mBishopAttacks[64][1 << BISHOPINDEXBITS];
-U64 mRookAttacks[64][1 << ROOKINDEXBITS];
+//U64 mBishopAttacks[64][1 << BISHOPINDEXBITS];
+//U64 mRookAttacks[64][1 << ROOKINDEXBITS];
+U64 *mBishopAttacks;
+U64 *mRookAttacks;
 
-SMagic mBishopTbl[64];
-SMagic mRookTbl[64];
+//SMagic mBishopTbl[64];
+//SMagic mRookTbl[64];
+SMagic *mBishopTbl;
+SMagic *mRookTbl;
 
 
 
@@ -1276,8 +1280,23 @@ const U64 rookmagics[] = {
     0x2000804026001102, 0x2000804026001102, 0x800040a010040901, 0x80001802002c0422, 0x0010b018200c0122, 0x200204802a080401, 0x8880604201100844, 0x80000cc281092402
 };
 
+
+void freeBitmaphelper()
+{
+    freealigned64(mBishopTbl);
+    freealigned64(mRookTbl);
+    freealigned64(mBishopAttacks);
+    freealigned64(mRookAttacks);
+}
+
+
 void initBitmaphelper()
 {
+    mBishopTbl = (SMagic*)allocalign64(64 * sizeof(SMagic));
+    mRookTbl = (SMagic*)allocalign64(64 * sizeof(SMagic));
+    mBishopAttacks = (U64*)allocalign64((64 << BISHOPINDEXBITS) * sizeof(U64));
+    mRookAttacks = (U64*)allocalign64((64 << ROOKINDEXBITS) * sizeof(U64));
+
     int to;
     for (int from = 0; from < 64; from++)
     {
@@ -1430,7 +1449,8 @@ void initBitmaphelper()
             // Now get the attack bitmap for this subset and store to attack table
             U64 attack = (getAttacks(from, occ, -7) | getAttacks(from, occ, 7) | getAttacks(from, occ, -9) | getAttacks(from, occ, 9));
             int hashindex = MAGICBISHOPINDEX(occ, from);
-            mBishopAttacks[from][hashindex] = attack;
+            //mBishopAttacks[from][hashindex] = attack;
+            mBishopAttacks[(from << BISHOPINDEXBITS) | hashindex] = attack;
         }
 
         // mRookTbl[from].magic = getMagicCandidate(mRookTbl[from].mask);
@@ -1442,7 +1462,8 @@ void initBitmaphelper()
             // Now get the attack bitmap for this subset and store to attack table
             U64 attack = (getAttacks(from, occ, -1) | getAttacks(from, occ, 1) | getAttacks(from, occ, -8) | getAttacks(from, occ, 8));
             int hashindex = MAGICROOKINDEX(occ, from);
-            mRookAttacks[from][hashindex] = attack;
+            //mRookAttacks[from][hashindex] = attack;
+            mRookAttacks[(from << ROOKINDEXBITS) | hashindex] = attack;
         }
 
         epthelper[from] = 0ULL;
@@ -2448,6 +2469,7 @@ engine::engine()
 
 engine::~engine()
 {
+    freeBitmaphelper();
     ucioptions.Set("SyzygyPath", "<empty>");
     delete[] sthread;
     delete rootposition.pwnhsh;
