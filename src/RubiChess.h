@@ -301,6 +301,7 @@ typedef const int32_t eval;
 #endif
 
 #define PSQTINDEX(i,s) ((s) ? (i) : (i) ^ 0x38)
+#define PSQSYM(i) ((i) ^ 7)
 
 #define TAPEREDANDSCALEDEVAL(s, p, c) ((GETMGVAL(s) * (256 - (p)) + GETEGVAL(s) * (p) * (c) / SCALE_NORMAL) / 256)
 
@@ -512,7 +513,7 @@ struct tunerpool {
 #endif
 
 void registerallevals(chessposition *pos = nullptr);
-void initPsqtable();
+void initPsqtable(bool symmetric = false);
 
 #define SCALE_NORMAL 128
 #define SCALE_DRAW 0

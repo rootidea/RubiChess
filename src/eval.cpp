@@ -23,17 +23,32 @@
 // static values for the search/pruning/material stuff
 const int materialvalue[7] = { 0,  100,  314,  314,  483,  913, 32509 };  // some evaluation depends on bishop value >= knight value!!!
 
-void initPsqtable()
+void initPsqtable(bool symmetric)
 {
     // initialize psqtable for faster evaluation
-    for (int from = 0; from < 64; from++)
+    for (int pc = 0; pc <= BKING; pc++)
     {
-        for (int pc = 0; pc <= BKING; pc++)
+        int p = pc >> 1;
+        int s2m = pc & S2MMASK;
+        for (int from = 0; from < 64; from++)
         {
-            int p = pc >> 1;
-            int s2m = pc & S2MMASK;
-            psqtable[pc][from] = S2MSIGN(s2m) * (eps.eMaterialvalue[p] + eps.ePsqt[p][PSQTINDEX(from, s2m)]);
+            if (symmetric)
+            {
+                eval left = eps.ePsqt[p][PSQTINDEX(from, s2m)];
+                eval right = eps.ePsqt[p][PSQTINDEX(PSQSYM(from), s2m)];
+                eval avg = VALUE((GETMGVAL(left) + GETMGVAL(right)) / 2, (GETEGVAL(left) + GETEGVAL(right)) / 2);
+                psqtable[pc][from] = S2MSIGN(s2m) * (eps.eMaterialvalue[p] + avg);
+            }
+            else
+            {
+                psqtable[pc][from] = S2MSIGN(s2m) * (eps.eMaterialvalue[p] + eps.ePsqt[p][PSQTINDEX(from, s2m)]);
+            }
+#if 0
+            if ((from & 7) == 0) printf("\n");
+            printf("%08x  ", psqtable[pc][from]);
+#endif
         }
+        //printf("\n\n");
     }
 }
 

@@ -409,7 +409,7 @@ int chessposition::getFromFen(const char* sFen)
             kingfile = FILE(kingpos[col]);
             // Set chess960 if non-standard rook/king setup is found
             if (kingfile != 4 || rookfiles[gCastle] != gCastle * 7)
-                en.chess960 = true;
+                en.ucioptions.Set("UCI_Chess960", "true");
         }
     }
     initCastleRights(rookfiles, kingfile);
@@ -1280,7 +1280,7 @@ const U64 rookmagics[] = {
 void initBitmaphelper()
 {
     int to;
-    initPsqtable();
+    //initPsqtable();
     for (int from = 0; from < 64; from++)
     {
         king_attacks[from] = knight_attacks[from] = 0ULL;
@@ -2403,6 +2403,11 @@ static void uciSetSyzygyPath()
     init_tablebases((char*)en.SyzygyPath.c_str());
 }
 
+static void uciSetChess960()
+{
+    initPsqtable(en.chess960);
+}
+
 
 searchthread::searchthread()
 {
@@ -2428,7 +2433,7 @@ engine::engine()
     ucioptions.Register(&SyzygyPath, "SyzygyPath", ucistring, "<empty>", 0, 0, uciSetSyzygyPath);
     ucioptions.Register(&Syzygy50MoveRule, "Syzygy50MoveRule", ucicheck, "true");
     ucioptions.Register(&SyzygyProbeLimit, "SyzygyProbeLimit", ucispin, "7", 0, 7, nullptr);
-    ucioptions.Register(&chess960, "UCI_Chess960", ucicheck, "false");
+    ucioptions.Register(&chess960, "UCI_Chess960", ucicheck, "false", 0, 0, uciSetChess960);
     ucioptions.Register(nullptr, "Clear Hash", ucibutton, "", 0, 0, uciClearHash);
 
 #ifdef _WIN32
