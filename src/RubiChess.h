@@ -327,10 +327,10 @@ struct evalparamset {
     eval ePawnpushthreatbonus =  VALUE(  20,  13);
     eval eSafepawnattackbonus =  VALUE(  66,  25);
     //eval eHangingpiecepenalty =  VALUE( -23, -36);
-    eval eAttackthreatminor[7] = {  VALUE(   0,   0), VALUE(  -8,  10), VALUE(   0,  95), VALUE(  24,  31), VALUE(  44,   3), VALUE(  28, -50), VALUE(   0,   0)  };
-    eval eAttackthreatrook[7] = {  VALUE(   0,   0), VALUE(  -2,  13), VALUE(  23,  18), VALUE(  32,  20), VALUE(  -3,  16), VALUE(  59,  11), VALUE(   0,   0)  };
-    eval eAttackthreatpawn[7] = {  VALUE(   0,   0), VALUE(   0,   0), VALUE(  -8, -18), VALUE(   6,   8), VALUE( -13, -40), VALUE(  -2,-101), VALUE(   0,   0)  };
-    eval eAttackthreatking[7] = {  VALUE(   0,   0), VALUE(  31,  -2), VALUE(   5,  42), VALUE(  17,  29), VALUE(  11,  24), VALUE(   0,   0), VALUE(   0,   0)  };
+    eval eAttackthreatminor[7] = {  VALUE(   0,   0), VALUE(  -7,  14), VALUE( -22, -88), VALUE(  36,  56), VALUE(  41,  19), VALUE(   8, -24), VALUE(   0,   0)  };
+    eval eAttackthreatrook[7] = {  VALUE(   0,   0), VALUE(  -1,  17), VALUE(  16,  24), VALUE(  20,  37), VALUE(  15, -39), VALUE(  39,  30), VALUE(   0,   0)  };
+    eval eAttackthreatpawn[7] = {  VALUE(   0,   0), VALUE(   0,   0), VALUE( -21,  21), VALUE(  -3,  50), VALUE(   6, -41), VALUE(   5, -90), VALUE(   0,   0)  };
+    eval eAttackthreatking[7] = {  VALUE(   0,   0), VALUE(  23,  20), VALUE(  16,  59), VALUE(  49,  31), VALUE(  24,  35), VALUE(   0,   0), VALUE(   0,   0)  };
     eval ePassedpawnbonus[4][8] = {
         {  VALUE(   0,   0), VALUE(  10,   4), VALUE(   0,   8), VALUE(  10,  25), VALUE(  35,  46), VALUE(  74,  81), VALUE(  44, 108), VALUE(   0,   0)  },
         {  VALUE(   0,   0), VALUE( -19,  -4), VALUE( -15,  12), VALUE(  -5,  17), VALUE(  17,  34), VALUE(  42,  60), VALUE( -12,  42), VALUE(   0,   0)  },
