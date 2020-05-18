@@ -159,8 +159,17 @@ void registerallevals(chessposition *pos)
 
     registertuner(pos, &eps.ePawnpushthreatbonus, "ePawnpushthreatbonus", 0, 0, 0, 0, tuneIt);
     registertuner(pos, &eps.eSafepawnattackbonus, "eSafepawnattackbonus", 0, 0, 0, 0, tuneIt);
-    tuneIt = false;
-    registertuner(pos, &eps.eHangingpiecepenalty, "eHangingpiecepenalty", 0, 0, 0, 0, tuneIt);
+
+    tuneIt = true;
+    for (i = 0; i < 7; i++)
+        registertuner(pos, &eps.eAttackthreatminor[i], "eAttackthreatminor", i, 7, 0, 0, tuneIt);
+    for (i = 0; i < 7; i++)
+        registertuner(pos, &eps.eAttackthreatrook[i], "eAttackthreatrook", i, 7, 0, 0, tuneIt);
+    for (i = 0; i < 7; i++)
+        registertuner(pos, &eps.eAttackthreatpawn[i], "eAttackthreatpawn", i, 7, 0, 0, tuneIt);
+    for (i = 0; i < 7; i++)
+        registertuner(pos, &eps.eAttackthreatking[i], "eAttackthreatking", i, 7, 0, 0, tuneIt);
+
     tuneIt = false;
     for (i = 0; i < 4; i++)
         for (j = 0; j < 8; j++)
@@ -180,7 +189,7 @@ void registerallevals(chessposition *pos)
     tuneIt = false;
     for (i = 0; i < 8; i++)
         registertuner(pos, &eps.eAttackingpawnbonus[i], "eAttackingpawnbonus", i, 8, 0, 0, tuneIt && (i > 0 && i < 7));
-    tuneIt = true;
+    tuneIt = false;
     for (i = 0; i < 8; i++)
         registertuner(pos, &eps.eIsolatedpawnpenalty[i], "eIsolatedpawnpenalty", i, 8, 0, 0, tuneIt);
     tuneIt = false;
@@ -191,7 +200,7 @@ void registerallevals(chessposition *pos)
             registertuner(pos, &eps.eConnectedbonus[i][j], "eConnectedbonus", j, 6, i, 6, tuneIt);
     tuneIt = false;
 
-    tuneIt = true;
+    tuneIt = false;
     for (i = 0; i < 8; i++)
         registertuner(pos, &eps.eBackwardpawnpenalty[i], "eBackwardpawnpenalty", i, 8, 0, 0, tuneIt);
     tuneIt = false;
@@ -668,13 +677,13 @@ int chessposition::getLateEval(positioneval *pe)
     if (bTrace) te.kingattackpower[You] += SQRESULT(kingdanger, You);
 
     // Threats
-    U64 hisNonPawns = occupied00[You] ^ piece00[WPAWN + You];
-    U64 hisAttackedNonPawns = (hisNonPawns & attackedBy[Me][PAWN]);
-    if (hisAttackedNonPawns)
+    U64 yourNonPawns = occupied00[You] ^ piece00[WPAWN + You];
+    U64 yourAttackedNonPawns = (yourNonPawns & attackedBy[Me][PAWN]);
+    if (yourAttackedNonPawns)
     {
         // Our safe or protected pawns
         U64 ourSafePawns = piece00[WPAWN | Me] & (~attackedBy[You][0] | attackedBy[Me][0]);
-        U64 safeThreats = PAWNATTACK(Me, ourSafePawns) & hisAttackedNonPawns;
+        U64 safeThreats = PAWNATTACK(Me, ourSafePawns) & yourAttackedNonPawns;
         result += EVAL(eps.eSafepawnattackbonus, S2MSIGN(Me) * POPCOUNT(safeThreats));
         if (bTrace) te.threats[Me] += EVAL(eps.eSafepawnattackbonus, S2MSIGN(Me) * POPCOUNT(safeThreats));
     }
@@ -692,10 +701,52 @@ int chessposition::getLateEval(positioneval *pe)
     result += EVAL(eps.ePawnpushthreatbonus, S2MSIGN(Me) * POPCOUNT(attackedPieces));
     if (bTrace) te.threats[Me] += EVAL(eps.ePawnpushthreatbonus, S2MSIGN(Me) * POPCOUNT(attackedPieces));
 
+#if 0
     // Hanging pieces
     U64 hanging = occupied00[Me] & ~attackedBy[Me][0] & attackedBy[You][0];
     result += EVAL(eps.eHangingpiecepenalty, S2MSIGN(Me) * POPCOUNT(hanging));
     if (bTrace) te.threats[You] += EVAL(eps.eHangingpiecepenalty, S2MSIGN(Me) * POPCOUNT(hanging));
+#else
+    U64 hanging;
+    U64 yourProtectedSquares = attackedBy[You][PAWN] | (attackedBy2[You] & attackedBy2[Me]);
+    U64 yourWeakPieces = occupied00[You] & ~yourProtectedSquares & attackedBy[Me][0];
+    
+    // Minor victims
+    hanging = (yourNonPawns | yourWeakPieces) & (attackedBy[Me][KNIGHT] | attackedBy[Me][KNIGHT]);
+    while (hanging)
+    {
+        index = pullLsb(&hanging);
+        result += EVAL(eps.eAttackthreatminor[mailbox[index] >> 1], S2MSIGN(Me));
+        if (bTrace) te.threats[Me] += EVAL(eps.eAttackthreatminor[mailbox[index] >> 1], S2MSIGN(Me));
+    }
+
+    // Rook victims
+    hanging = (yourWeakPieces | piece00[WQUEEN | You]) & attackedBy[Me][ROOK];
+    while (hanging)
+    {
+        index = pullLsb(&hanging);
+        result += EVAL(eps.eAttackthreatrook[mailbox[index] >> 1], S2MSIGN(Me));
+        if (bTrace) te.threats[Me] += EVAL(eps.eAttackthreatrook[mailbox[index] >> 1], S2MSIGN(Me));
+    }
+
+    // Pawn victims
+    hanging = yourNonPawns & attackedBy[Me][PAWN];
+    while (hanging)
+    {
+        index = pullLsb(&hanging);
+        result += EVAL(eps.eAttackthreatpawn[mailbox[index] >> 1], S2MSIGN(Me));
+        if (bTrace) te.threats[Me] += EVAL(eps.eAttackthreatpawn[mailbox[index] >> 1], S2MSIGN(Me));
+    }
+
+    // King victims
+    hanging = yourWeakPieces & attackedBy[Me][KING];
+    while (hanging)
+    {
+        index = pullLsb(&hanging);
+        result += EVAL(eps.eAttackthreatking[mailbox[index] >> 1], S2MSIGN(Me));
+        if (bTrace) te.threats[Me] += EVAL(eps.eAttackthreatking[mailbox[index] >> 1], S2MSIGN(Me));
+    }
+#endif
 
     // Knight outposts for 'You' cause we already calculated possible pawnpushed for 'Me' that might be important to defend against outpost
     U64 outpost = piece00[WKNIGHT | You] & OUTPOSTAREA(You) & attackedBy[You][PAWN] & ~(attackedPieces | attackedBy[Me][PAWN]);
