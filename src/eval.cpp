@@ -163,21 +163,21 @@ void registerallevals(chessposition *pos)
     tuneIt = false;
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eAttackthreatminor[i], "eAttackthreatminor", i, 7, 0, 0, tuneIt);
-    tuneIt = true;
+    tuneIt = false;
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eAttackthreatrook[i], "eAttackthreatrook", i, 7, 0, 0, tuneIt);
     tuneIt = false;
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eAttackthreatpawn[i], "eAttackthreatpawn", i, 7, 0, 0, tuneIt);
-    tuneIt = false;
+    tuneIt = true;
     for (i = 0; i < 7; i++)
-        registertuner(pos, &eps.eAttackthreatking[i], "eAttackthreatking", i, 7, 0, 0, tuneIt);
+        registertuner(pos, &eps.eAttackthreatking[i], "eAttackthreatking", i, 7, 0, 0, i == 1 && tuneIt);
 
     tuneIt = false;
     for (i = 0; i < 4; i++)
         for (j = 0; j < 8; j++)
             registertuner(pos, &eps.ePassedpawnbonus[i][j], "ePassedpawnbonus", j, 8, i, 4, tuneIt && (j > 0 && j < 7));
-    tuneIt = false;
+    tuneIt = true;
     for (i = 0; i < 7; i++)
         for (j = 0; j < 8; j++)
             registertuner(pos, &eps.eKingsupportspasserbonus[i][j], "eKingsupportspasserbonus", j, 8, i, 7, tuneIt && (j > 0 && j < 7));
@@ -219,14 +219,14 @@ void registerallevals(chessposition *pos)
         for (j = 0; j < 28; j++)
             registertuner(pos, &eps.eMobilitybonus[i][j], "eMobilitybonus", j, 28, i, 4, tuneIt && (j < maxmobility[i]));
 
-    tuneIt = true;
+    tuneIt = false;
     registertuner(pos, &eps.eRookon7thbonus, "eRookon7thbonus", 0, 0, 0, 0, tuneIt);
 
     tuneIt = false;
     for (i = 0; i < 6; i++)
         registertuner(pos, &eps.eMinorbehindpawn[i], "eMinorbehindpawn", i, 6, 0, 0, tuneIt);
 
-    tuneIt = true;
+    tuneIt = false;
     for (i = 0; i < 2; i++)
         registertuner(pos, &eps.eSlideronfreefilebonus[i], "eSlideronfreefilebonus", i, 2, 0, 0, tuneIt);
     
