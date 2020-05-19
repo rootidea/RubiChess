@@ -160,13 +160,16 @@ void registerallevals(chessposition *pos)
     registertuner(pos, &eps.ePawnpushthreatbonus, "ePawnpushthreatbonus", 0, 0, 0, 0, tuneIt);
     registertuner(pos, &eps.eSafepawnattackbonus, "eSafepawnattackbonus", 0, 0, 0, 0, tuneIt);
 
-    tuneIt = true;
+    tuneIt = false;
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eAttackthreatminor[i], "eAttackthreatminor", i, 7, 0, 0, tuneIt);
+    tuneIt = true;
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eAttackthreatrook[i], "eAttackthreatrook", i, 7, 0, 0, tuneIt);
+    tuneIt = false;
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eAttackthreatpawn[i], "eAttackthreatpawn", i, 7, 0, 0, tuneIt);
+    tuneIt = false;
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eAttackthreatking[i], "eAttackthreatking", i, 7, 0, 0, tuneIt);
 
@@ -216,18 +219,21 @@ void registerallevals(chessposition *pos)
         for (j = 0; j < 28; j++)
             registertuner(pos, &eps.eMobilitybonus[i][j], "eMobilitybonus", j, 28, i, 4, tuneIt && (j < maxmobility[i]));
 
-    tuneIt = false;
+    tuneIt = true;
     registertuner(pos, &eps.eRookon7thbonus, "eRookon7thbonus", 0, 0, 0, 0, tuneIt);
 
     tuneIt = false;
     for (i = 0; i < 6; i++)
         registertuner(pos, &eps.eMinorbehindpawn[i], "eMinorbehindpawn", i, 6, 0, 0, tuneIt);
 
-    tuneIt = false;
+    tuneIt = true;
     for (i = 0; i < 2; i++)
         registertuner(pos, &eps.eSlideronfreefilebonus[i], "eSlideronfreefilebonus", i, 2, 0, 0, tuneIt);
+    
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eMaterialvalue[i], "eMaterialvalue", i, 7, 0, 0, false);
+
+    tuneIt = false;
     registertuner(pos, &eps.eKingshieldbonus, "eKingshieldbonus", 0, 0, 0, 0, tuneIt);
 
     // kingdanger evals
@@ -679,6 +685,7 @@ int chessposition::getLateEval(positioneval *pe)
     // Threats
     U64 yourNonPawns = occupied00[You] ^ piece00[WPAWN + You];
     U64 yourAttackedNonPawns = (yourNonPawns & attackedBy[Me][PAWN]);
+#if 0
     if (yourAttackedNonPawns)
     {
         // Our safe or protected pawns
@@ -687,7 +694,7 @@ int chessposition::getLateEval(positioneval *pe)
         result += EVAL(eps.eSafepawnattackbonus, S2MSIGN(Me) * POPCOUNT(safeThreats));
         if (bTrace) te.threats[Me] += EVAL(eps.eSafepawnattackbonus, S2MSIGN(Me) * POPCOUNT(safeThreats));
     }
-
+#endif
     // Threat by pawn push
     // Get empty squares for pawn pushes
     U64 pawnPush = PAWNPUSH(Me, piece00[WPAWN | Me]) & ~occupied;

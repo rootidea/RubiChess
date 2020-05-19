@@ -327,10 +327,10 @@ struct evalparamset {
     eval ePawnpushthreatbonus =  VALUE(  20,  13);
     eval eSafepawnattackbonus =  VALUE(  66,  25);
     //eval eHangingpiecepenalty =  VALUE( -23, -36);
-    eval eAttackthreatminor[7] = {  VALUE(   0,   0), VALUE(  -7,  14), VALUE( -22, -88), VALUE(  36,  56), VALUE(  41,  19), VALUE(   8, -24), VALUE(   0,   0)  };
-    eval eAttackthreatrook[7] = {  VALUE(   0,   0), VALUE(  -1,  17), VALUE(  16,  24), VALUE(  20,  37), VALUE(  15, -39), VALUE(  39,  30), VALUE(   0,   0)  };
-    eval eAttackthreatpawn[7] = {  VALUE(   0,   0), VALUE(   0,   0), VALUE( -21,  21), VALUE(  -3,  50), VALUE(   6, -41), VALUE(   5, -90), VALUE(   0,   0)  };
-    eval eAttackthreatking[7] = {  VALUE(   0,   0), VALUE(  23,  20), VALUE(  16,  59), VALUE(  49,  31), VALUE(  24,  35), VALUE(   0,   0), VALUE(   0,   0)  };
+    eval eAttackthreatminor[7] = {  VALUE(   0,   0), VALUE(  -8,  10), VALUE(   0,  95), VALUE(  24,  31), VALUE(  44,   3), VALUE(  28, -50), VALUE(   0,   0)  };
+    eval eAttackthreatrook[7] = {  VALUE(   0,   0), VALUE(  -2,  17), VALUE(  23,  15), VALUE(  31,  20), VALUE(  -5,  17), VALUE(  62,   7), VALUE(   0,   0)  };
+    eval eAttackthreatpawn[7] = {  VALUE(   0,   0), VALUE(   0,   0), VALUE(  52,  17), VALUE(  61,  51), VALUE(  33,  -2), VALUE(  32,  -3), VALUE(   0,   0)  };
+    eval eAttackthreatking[7] = {  VALUE(   0,   0), VALUE(  31,  -2), VALUE(   5,  42), VALUE(  17,  29), VALUE(  11,  24), VALUE(   0,   0), VALUE(   0,   0)  };
     eval ePassedpawnbonus[4][8] = {
         {  VALUE(   0,   0), VALUE(  10,   4), VALUE(   0,   8), VALUE(  10,  25), VALUE(  35,  46), VALUE(  74,  81), VALUE(  44, 108), VALUE(   0,   0)  },
         {  VALUE(   0,   0), VALUE( -19,  -4), VALUE( -15,  12), VALUE(  -5,  17), VALUE(  17,  34), VALUE(  42,  60), VALUE( -12,  42), VALUE(   0,   0)  },
@@ -395,9 +395,9 @@ struct evalparamset {
            VALUE(  20, 253), VALUE(  21, 256), VALUE(  18, 263), VALUE(  13, 270), VALUE(  45, 244), VALUE(  67, 233), VALUE(  72, 241), VALUE(  80, 230),
            VALUE(  69, 264), VALUE( 108, 231), VALUE( 107, 230), VALUE( 114, 198)  }
     };
-    eval eRookon7thbonus =  VALUE(  -1,  22);
+    eval eRookon7thbonus =  VALUE(  -9,  14);
     eval eMinorbehindpawn[6] = {  VALUE(   1,  14), VALUE(  12,  10), VALUE(  15,  11), VALUE(  24,   9), VALUE(  37,  11), VALUE(  89, 110)  };
-    eval eSlideronfreefilebonus[2] = {  VALUE(  21,   7), VALUE(  43,   1)  };
+    eval eSlideronfreefilebonus[2] = {  VALUE(  21,   0), VALUE(  43,   6)  };
     eval eMaterialvalue[7] = {  VALUE(   0,   0), VALUE( 100, 100), VALUE( 314, 314), VALUE( 314, 314), VALUE( 483, 483), VALUE( 913, 913), VALUE(   0,   0)  };
     eval eKingshieldbonus =  VALUE(  15,  -2);
     eval eWeakkingringpenalty =  SQVALUE(   1,  70);
